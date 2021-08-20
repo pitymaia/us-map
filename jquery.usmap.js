@@ -404,7 +404,7 @@
       var labelHitArea = stateName in this.labelHitAreas ? this.labelHitAreas[stateName] : null
       var bbox = this.bboxesForStateShapes[stateName];
       
-      return {
+      var return_value = {
         shape: stateShape, 
         hitArea: stateHitArea, 
         name: stateName, 
@@ -413,21 +413,36 @@
         labelHitArea: labelHitArea,
         bbox: bbox
       };
+
+      if (this._lastShape) {
+        this._removeTransformations(this._lastShape.node);
+      }
+
+      var centreX = return_value.bbox.x + return_value.bbox.width/2;
+      var centreY = return_value.bbox.y + return_value.bbox.height/2;
+      return_value.shape.node.style.transform = 'scale(1.3)';
+      return_value.shape.node.style['transform-origin'] =  centreX + 'px ' + centreY + 'px';
+      this._lastShape = return_value.shape;
+
+      return return_value;
     },
     
-    
+    _removeTransformations(node) {
+      node.style.transform = null;
+      node.style['transform-origin'] = null;
+    },
     
     /**
      * The mouseout handler
      */
     _onMouseOut: function(event) {
       var stateData = this._getStateFromEvent(event);
-      
       // Stop if no state was found
       if(!stateData.hitArea) {
         return;
       }
       
+      this._removeTransformations(stateData.shape.node);
       return !this._triggerEvent('mouseout', event, stateData);
 
     },
