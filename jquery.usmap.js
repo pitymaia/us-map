@@ -414,20 +414,37 @@
         bbox: bbox
       };
 
-      if (this._lastShape) {
+      if (this._lastShape && this._lastShape.node !== return_value.shape.node) {
+        clearTimeout(this._timeout);
         this._removeTransformations(this._lastShape.node);
+      } else if (this._lastShape && this._lastShape.node === return_value.shape.node) {
+        clearTimeout(this._timeout);
       }
 
-      var centreX = return_value.bbox.x + return_value.bbox.width/2;
-      var centreY = return_value.bbox.y + return_value.bbox.height/2;
-      return_value.shape.node.style.transform = 'scale(1.3)';
-      return_value.shape.node.style['transform-origin'] =  centreX + 'px ' + centreY + 'px';
-      this._lastShape = return_value.shape;
+      if (!this._lastShape || this._lastShape.node !== return_value.shape.node) {
+        var centreX = return_value.bbox.x + return_value.bbox.width/2;
+        var centreY = return_value.bbox.y + return_value.bbox.height/2;
+        return_value.shape.node.style.transform = 'scale(1.05)';
+        this._scaleValue = 1.05;
+
+        this._setInterval = setInterval(()=> {
+          if (this._scaleValue >= 1.3) {
+            clearInterval(this._setInterval);
+            return;
+          }
+          this._scaleValue = this._scaleValue + 0.05;
+          return_value.shape.node.style.transform = 'scale(' + this._scaleValue + ')';
+        }, 50);
+        return_value.shape.node.style['transform-origin'] =  centreX + 'px ' + centreY + 'px';
+        this._lastShape = return_value.shape;
+      }
+
 
       return return_value;
     },
     
     _removeTransformations(node) {
+      clearInterval(this._setInterval);
       node.style.transform = null;
       node.style['transform-origin'] = null;
     },
@@ -441,8 +458,10 @@
       if(!stateData.hitArea) {
         return;
       }
-      
-      this._removeTransformations(stateData.shape.node);
+      this._timeout = setTimeout(()=> {
+        this._removeTransformations(stateData.shape.node);
+        this._lastShape = null;
+      }, 50);
       return !this._triggerEvent('mouseout', event, stateData);
 
     },
