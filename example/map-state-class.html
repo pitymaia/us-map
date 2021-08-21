@@ -14,7 +14,7 @@
   <script>
   	$(document).ready(function() {
   		class USMap {
-  			constructor(mapID='map', textColor='#000', fillColor='#f00', hoverColor='#ff0', backgroundColor='#ebf2ff') {
+  			constructor(mapID='map', textColor='#000', fillColor='#5D8CAE', hoverColor='#22A7F0', backgroundColor='#ebf2ff') {
   				this.mapID = mapID;
   				this.textColor = textColor;
   				this.fillColor = fillColor;
@@ -81,13 +81,14 @@
   			}
 
   			capitalize(s) {
-  				s = s.toLowerCase();
-  				var parts = s.split(' ');
-  				var result = '';
-  				for (var part of parts) {
-  					result = result + ' ' + part[0].toUpperCase() + part.slice(1);
-  				}
-  				return result.trim();
+          return s;
+  				// s = s.toLowerCase();
+  				// var parts = s.split(' ');
+  				// var result = '';
+  				// for (var part of parts) {
+  				// 	result = result + ' ' + part[0].toUpperCase() + part.slice(1);
+  				// }
+  				// return result.trim();
   			}
 
   			getStatePosition(data) {
@@ -109,17 +110,18 @@
   				div.style.display = 'inline-block';
   				var statePos = this.getStatePosition(data);
   				clearTimeout(window._stateTimeou);
-  				setTimeout(()=> {
+          if (data.name === this._lastState) {
+            return;
+          }
+          div.style.transition = null;
+          div.style.opacity = 0;
+  				window._stateTimeou = setTimeout(()=> {
+            div.style.transition = 'opacity 500ms ease-in-out';
   					div.style.opacity = 1;
   					div.style.top = statePos.y + 'px';
   					div.style.left = statePos.x + 'px';
-  					// window._stateTimeou = setTimeout(()=> {
-  					// 	div.style.opacity = 0;
-  					// 	setTimeout(()=> {
-  					// 		div.style.display = 'none';
-  					// 	}, 500);
-  					// }, 4000);
-  				}, 1);
+            this._lastState = data.name;
+  				}, 10);
   			}
 
   			hideState(event) {
@@ -127,20 +129,23 @@
   				clearTimeout(window._stateTimeou);
   				window._stateTimeou = setTimeout(()=> {
   					div.style.opacity = 0;
+            this._lastState = null;
   					window._stateTimeou = setTimeout(()=> {
   						div.style.display = 'none';
   					}, 500);
-  				}, 10);
+  				}, 5);
   			}
 
-  			setStateNode(_div) {
+  			setStateNode(_div, color) {
   				_div.id = 'state';
   				_div.style.display = 'none';
   				_div.style.opacity = 0;
   				_div.style['z-index'] = 1000;
   				_div.style.position = 'absolute';
-  				_div.style['background-color'] = '#1c77b4';
-  				_div.style.color = '#fff';
+          _div.style['font-family'] = '"Lucida Console", "Courier New", monospace';
+          _div.style['letter-spacing'] = '0.2em';
+          _div.style['font-weight'] = '900';
+  				_div.style.color = this.textColor;
   				_div.style.padding = '5px';
   				_div.style['font-weight'] = 'bold';
   				_div.style['border-radius'] = '5px';
@@ -152,7 +157,7 @@
   				$('#' + this.mapID).usmap({
   					stateStyles: {
   						fill: this.fillColor,
-  						stroke: '#ccc',
+  						stroke: '#fff',
   					},
   					stateHoverStyles: {
   						fill: this.hoverColor,
