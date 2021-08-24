@@ -36,11 +36,10 @@
 		}
 
 		@keyframes rotate-name {
-			0% { opacity: 0;  transform: translateX(0);filter:blur(20px);transform:scale(1.2)}
-			5% { opacity: 1;  transform: translateX(0);filter:blur(0px);transform:scale(1)}
-			50% { opacity: 1;  transform: translateX(0);filter:blur(0px);transform:scale(1)}
-			80% { opacity: 1;  transform: translateX(0);filter:blur(0px);transform:scale(1)}
-			85% { opacity: 0; transform: translateX(0);filter:blur(20px);transform:scale(1.2)}
+			0% { opacity: 0;  transform: translateX(0);filter:blur(20px);transform:scale(0.8)}
+			7% { opacity: 1;  transform: translateX(0);filter:blur(0px);transform:scale(0.9)}
+			50% { opacity: 1;  transform: translateX(0);filter:blur(0px);transform:scale(1.1)}
+			80% { opacity: 1;  transform: translateX(0);filter:blur(0px);transform:scale(1.2)}
 			90% { opacity: 0; transform: translateX(0);filter:blur(20px);transform:scale(1.2)}
 			100% { opacity: 0}*/
 		}
@@ -48,7 +47,7 @@
 		@keyframes rotate-abbreviation {
 			80% { opacity: 0;  transform: translateX(0);filter:blur(20px);transform:scale(1.2)}
 			85% { opacity: 1;  transform: translateX(0);filter:blur(0px);transform:scale(1)}
-			95% { opacity: 1;  transform: translateX(0);filter:blur(0px);transform:scale(1)}
+			95% { opacity: 1;  transform: translateX(0);filter:blur(0px);transform:scale(1.1)}
 			99% { opacity: 0; transform: translateX(0);filter:blur(20px);transform:scale(1.2)}
 			99% { opacity: 0; transform: translateX(0);filter:blur(20px);transform:scale(1.2)}
 			100% { opacity: 0}*/
@@ -61,21 +60,12 @@
 </head>
 <body>
 
-
-<!-- 	<div class="state">  
-		<div class="name">NEW YORK</div>
-		<div class="abbreviation">NY</div>
-	</div> -->
-
-
-
-
-	<div id="map" style="width: 930px; height: 630px; border: solid 3px red;"></div>
+	<div id="map" data-width="930" data-height="630" style="width: 930px; height: 630px;"></div>
 
 	<script>
 		$(document).ready(function() {
 			class USMap {
-				constructor(mapID='map', textColor='#000', fillColor='#5D8CAE', hoverColor='#22A7F0', backgroundColor='#ebf2ff', capitalize=false) {
+				constructor(mapID='map', textColor='#000', fillColor='#5D8CAE', hoverColor='#22A7F0', backgroundColor='#ebf2ff', capitalize=false, USA='UNITED STATES', USA_ABBR='US') {
 					this._capitalize = capitalize;
 					this.mapID = mapID;
 					this.textColor = textColor;
@@ -83,6 +73,8 @@
 					this.hoverColor = hoverColor;
 					this.backgroundColor = backgroundColor;
 					this.states = {
+						USA_ABBR: USA_ABBR,
+						USA: USA,
 						AL: 'ALABAMA',
 						AK: 'ALASKA',
 						AS: 'AMERICAN SAMOA',
@@ -152,12 +144,14 @@
 					return result.trim();
 				}
 
-				getMapPosition(data) {
+				getStatePosition(data, width, height) {
 					var path = data;
 					var rect = path.getBoundingClientRect();
+					width = width || rect.width;
+					height = height || rect.height;
 					var div = document.getElementById('state');
-					var x = rect.x + (rect.width / 2);
-					var y = rect.y + (rect.height / 2);
+					var x = rect.x + (width / 2);
+					var y = rect.y + (height / 2);
 
 					x = x - (div.offsetWidth / 2);
 					y = y - (div.offsetHeight / 2);
@@ -169,7 +163,9 @@
 					var map = document.getElementById('map');
 					var div = document.getElementById('state');
 					div.style.display = 'inline-block';
-					var statePos = this.getMapPosition(map);
+					var width = (map.dataset.width ? parseInt(map.dataset.width) : null);
+					var height = (map.dataset.height ? parseInt(map.dataset.height) : null);
+					var statePos = this.getStatePosition(map, width, height);
 					clearTimeout(window._stateTimeou);
 					if (data.name === this._lastState) {
 						return;
@@ -203,8 +199,8 @@
 				addState(div) {
 					var _div = document.createElement('div');
 					_div.classList.add('state');
-					_div.innerHTML = `<div class="name">UNITED STATES OF AMERICA</div>
-					<div class="abbreviation">USA</div>`;
+					_div.innerHTML = `<div class="name">${this.states['USA']}</div>
+					<div class="abbreviation">${this.states['USA_ABBR']}</div>`;
 					var map = document.getElementById('map');
 					_div.id = 'state';
 					_div.style['z-index'] = 1000;
@@ -213,6 +209,11 @@
 					this.setStateNode(_div);
 					var parent = map.parentNode;
 					parent.insertBefore(_div, map);
+					var width = (map.dataset.width ? parseInt(map.dataset.width) : null);
+					var height = (map.dataset.height ? parseInt(map.dataset.height) : null);
+					var statePos = this.getStatePosition(map, width, height);
+					_div.style.top = statePos.y + 'px';
+					_div.style.left = statePos.x + 'px';
 					return document.getElementById('state');
 				}
 
