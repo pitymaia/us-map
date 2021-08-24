@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>US Map Demo</title>
+	<script src="../lib/raphael.js"></script>
+	<!-- <script src="scale.raphael.js"></script> -->
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.js"></script>
+	<script src="color.jquery.js"></script>
+	<script src="../jquery.usmap.js"></script>
+	<style>
+
+		.state {
+			padding-left: 4em;
+			text-align: center;
+		}
+		.state .name {
+			font-size: 1.5em;
+			opacity:0;
+			overflow:hidden;
+			line-height: 1.2em;
+			animation: rotate-name 8s linear infinite 0s;
+		}
+
+		.state .abbreviation {
+			font-size: 1.5em;
+			opacity:0;
+			overflow:hidden;
+			line-height: 1.2em;
+			animation: rotate-abbreviation 8s linear infinite 0s;
+		}
+
+		.state .name, .state .abbreviation {
+			font-family: "Lucida Console", "Courier New", monospace;
+			letter-spacing: 0.2em;
+			font-weight: 900;
+		}
+
+		@keyframes rotate-name {
+			0% { opacity: 0;  transform: translateX(0);filter:blur(20px);transform:scale(1.2)}
+			5% { opacity: 1;  transform: translateX(0);filter:blur(0px);transform:scale(1)}
+			50% { opacity: 1;  transform: translateX(0);filter:blur(0px);transform:scale(1)}
+			80% { opacity: 1;  transform: translateX(0);filter:blur(0px);transform:scale(1)}
+			85% { opacity: 0; transform: translateX(0);filter:blur(20px);transform:scale(1.2)}
+			90% { opacity: 0; transform: translateX(0);filter:blur(20px);transform:scale(1.2)}
+			100% { opacity: 0}*/
+		}
+
+		@keyframes rotate-abbreviation {
+			80% { opacity: 0;  transform: translateX(0);filter:blur(20px);transform:scale(1.2)}
+			85% { opacity: 1;  transform: translateX(0);filter:blur(0px);transform:scale(1)}
+			95% { opacity: 1;  transform: translateX(0);filter:blur(0px);transform:scale(1)}
+			99% { opacity: 0; transform: translateX(0);filter:blur(20px);transform:scale(1.2)}
+			99% { opacity: 0; transform: translateX(0);filter:blur(20px);transform:scale(1.2)}
+			100% { opacity: 0}*/
+		}
+
+		.state .abbreviation {
+			margin-top: -1.2em;
+		}
+	</style>
+</head>
+<body>
+
+
+<!-- 	<div class="state">  
+		<div class="name">NEW YORK</div>
+		<div class="abbreviation">NY</div>
+	</div> -->
+
+
+
+
+	<div id="map" style="width: 930px; height: 630px; border: solid 3px red;"></div>
+
+	<script>
+		$(document).ready(function() {
+			class USMap {
+				constructor(mapID='map', textColor='#000', fillColor='#5D8CAE', hoverColor='#22A7F0', backgroundColor='#ebf2ff', capitalize=false) {
+					this._capitalize = capitalize;
+					this.mapID = mapID;
+					this.textColor = textColor;
+					this.fillColor = fillColor;
+					this.hoverColor = hoverColor;
+					this.backgroundColor = backgroundColor;
+					this.states = {
+						AL: 'ALABAMA',
+						AK: 'ALASKA',
+						AS: 'AMERICAN SAMOA',
+						AZ: 'ARIZONA',
+						AR: 'ARKANSAS',
+						CA: 'CALIFORNIA',
+						CO: 'COLORADO',
+						CT: 'CONNECTICUT',
+						DE: 'DELAWARE',
+						DC: 'DISTRICT OF COLUMBIA',
+						FL: 'FLORIDA',
+						GA: 'GEORGIA',
+						GU: 'GUAM',
+						HI: 'HAWAII',
+						ID: 'IDAHO',
+						IL: 'ILLINOIS',
+						IN: 'INDIANA',
+						IA: 'IOWA',
+						KS: 'KANSAS',
+						KY: 'KENTUCKY',
+						LA: 'LOUISIANA',
+						ME: 'MAINE',
+						MD: 'MARYLAND',
+						MA: 'MASSACHUSETTS',
+						MI: 'MICHIGAN',
+						MN: 'MINNESOTA',
+						MS: 'MISSISSIPPI',
+						MO: 'MISSOURI',
+						MT: 'MONTANA',
+						NE: 'NEBRASKA',
+						NV: 'NEVADA',
+						NH: 'NEW HAMPSHIRE',
+						NJ: 'NEW JERSEY',
+						NM: 'NEW MEXICO',
+						NY: 'NEW YORK',
+						NC: 'NORTH CAROLINA',
+						ND: 'NORTH DAKOTA',
+						MP: 'NORTHERN MARIANA ISLANDS',
+						OH: 'OHIO',
+						OK: 'OKLAHOMA',
+						OR: 'OREGON',
+						PA: 'PENNSYLVANIA',
+						PR: 'PUERTO RICO',
+						RI: 'RHODE ISLAND',
+						SC: 'SOUTH CAROLINA',
+						SD: 'SOUTH DAKOTA',
+						TN: 'TENNESSEE',
+						TX: 'TEXAS',
+						UT: 'UTAH',
+						VT: 'VERMONT',
+						VA: 'VIRGINIA',
+						VI: 'VIRGIN ISLANDS',
+						WA: 'WASHINGTON',
+						WV: 'WEST VIRGINIA',
+						WI: 'WISCONSIN',
+						WY: 'WYOMING',
+					}
+				}
+
+				capitalize(s) {
+					s = s.toLowerCase();
+					var parts = s.split(' ');
+					var result = '';
+					for (var part of parts) {
+						result = result + ' ' + part[0].toUpperCase() + part.slice(1);
+					}
+					return result.trim();
+				}
+
+				getMapPosition(data) {
+					var path = data;
+					var rect = path.getBoundingClientRect();
+					var div = document.getElementById('state');
+					var x = rect.x + (rect.width / 2);
+					var y = rect.y + (rect.height / 2);
+
+					x = x - (div.offsetWidth / 2);
+					y = y - (div.offsetHeight / 2);
+
+					return {x: x, y: y};
+				}
+
+				showState(event, data) {
+					var map = document.getElementById('map');
+					var div = document.getElementById('state');
+					div.style.display = 'inline-block';
+					var statePos = this.getMapPosition(map);
+					clearTimeout(window._stateTimeou);
+					if (data.name === this._lastState) {
+						return;
+					}
+					div.style.transition = null;
+					div.style.opacity = 0;
+					window._stateTimeou = setTimeout(()=> {
+						div.style.transition = 'opacity 500ms ease-in-out';
+						div.style.opacity = 1;
+						div.style.top = statePos.y + 'px';
+						div.style.left = statePos.x + 'px';
+						this._lastState = data.name;
+					}, 10);
+				}
+
+				hideState(event) {
+					var div = document.getElementById('state');
+					clearTimeout(window._stateTimeou);
+					window._stateTimeou = setTimeout(()=> {
+						div.style.opacity = 0;
+						this._lastState = null;
+						window._stateTimeou = setTimeout(()=> {
+							div.style.display = 'none';
+						}, 500);
+					}, 5);
+				}
+
+				setStateNode(_div, color) {
+				}
+
+				addState(div) {
+					var _div = document.createElement('div');
+					_div.classList.add('state');
+					_div.innerHTML = `<div class="name">UNITED STATES OF AMERICA</div>
+					<div class="abbreviation">USA</div>`;
+					var map = document.getElementById('map');
+					_div.id = 'state';
+					_div.style['z-index'] = 1000;
+					_div.style.position = 'absolute';
+					_div.style.cursor = 'pointer';
+					this.setStateNode(_div);
+					var parent = map.parentNode;
+					parent.insertBefore(_div, map);
+					return document.getElementById('state');
+				}
+
+				getMap() {
+					var div = document.getElementById('state');
+					if (!div) {
+						div = this.addState(div);
+					}
+					$('#' + this.mapID).usmap({
+						stateStyles: {
+							fill: this.fillColor,
+							stroke: '#fff',
+						},
+						stateHoverStyles: {
+							fill: this.hoverColor,
+						},
+						labelBackingStyles: {
+							fill: this.backgroundColor,
+						},
+						labelBackingHoverStyles: {
+							fill: this.hoverColor,
+						},
+						labelTextStyles: {
+							fill: this.textColor,
+						},
+						mouseover: (event, data)=> {
+							div.onmouseover = (event)=> { 
+								clearTimeout(window._stateTimeou);
+								$('#map').usmap('trigger', data.name, 'mouseover', event);
+							};
+							div.onmouseout = (event)=> {
+								$('#map').usmap('trigger', data.name, 'mouseout', event);
+								this.hideState(event);
+							};
+							$('.name').text(this._capitalize ? this.capitalize(this.states[data.name]) : this.states[data.name]).stop();
+							$('.abbreviation').text(data.name).stop();
+							this.showState(event, data);
+						},
+						mouseout: (event, data)=> {
+							this.hideState();
+						}
+					});
+					$('#' + this.mapID).css('width' , '100%').css('height' , 'auto');
+				}
+			}
+
+			var usMap = new USMap();
+			usMap.getMap();
+
+		});
+	</script>
+</body>
+</html>
