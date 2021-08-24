@@ -9,11 +9,11 @@
 	<script src="../jquery.usmap.js"></script>
 	<style>
 
-		.state {
+		.state.blur {
 			padding-left: 4em;
 			text-align: center;
 		}
-		.state .name {
+		.state.blur .name {
 			font-size: 1.5em;
 			opacity:0;
 			overflow:hidden;
@@ -21,7 +21,7 @@
 			animation: rotate-name 8s linear infinite 0s;
 		}
 
-		.state .abbreviation {
+		.state.blur .abbreviation {
 			font-size: 1.5em;
 			opacity:0;
 			overflow:hidden;
@@ -29,7 +29,7 @@
 			animation: rotate-abbreviation 8s linear infinite 0s;
 		}
 
-		.state .name, .state .abbreviation {
+		.state.blur .name, .state.blur .abbreviation {
 			font-family: "Lucida Console", "Courier New", monospace;
 			letter-spacing: 0.2em;
 			font-weight: 900;
@@ -53,7 +53,7 @@
 			100% { opacity: 0}*/
 		}
 
-		.state .abbreviation {
+		.state.blur .abbreviation {
 			margin-top: -1.2em;
 		}
 	</style>
@@ -65,7 +65,7 @@
 	<script>
 		$(document).ready(function() {
 			class USMap {
-				constructor(mapID='map', textColor='#000', fillColor='#5D8CAE', hoverColor='#22A7F0', backgroundColor='#ebf2ff', capitalize=false, USA='UNITED STATES', USA_ABBR='US', stateLabel='center') {
+				constructor(mapID='map', textColor='#000', labelColor='#000', stroke="#ddd", fillColor='#5D8CAE', hoverColor='#22A7F0', backgroundColor='#ebf2ff', capitalize=false, USA='UNITED STATES', USA_ABBR='US', stateLabel='blur') {
 					this._capitalize = capitalize;
 					this.mapID = mapID;
 					this.textColor = textColor;
@@ -73,6 +73,7 @@
 					this.hoverColor = hoverColor;
 					this.backgroundColor = backgroundColor;
 					this.stateLabel = stateLabel;
+					this.stroke = stroke;
 					this.states = {
 						USA_ABBR: USA_ABBR,
 						USA: USA,
@@ -163,7 +164,7 @@
 				showState(event, data) {
 					var div = document.getElementById('state');
 					div.style.display = 'inline-block';
-					this.setStatePosition();
+					this.setStatePosition({state: null, data: data});
 					clearTimeout(window._stateTimeou);
 					if (data.name === this._lastState) {
 						return;
@@ -204,27 +205,46 @@
 					_div.style['z-index'] = 1000;
 					_div.style.position = 'absolute';
 					_div.style.cursor = 'pointer';
+					_div.style['font-family'] = '"Lucida Console", "Courier New", monospace';
+					_div.style.color = this.textColor;
+					if (this.stateLabel !== 'center') {
+						var abbreviation = _div.getElementsByClassName('abbreviation')[0];
+						abbreviation.style.display = 'none';
+						_div.style.display = 'none';
+						_div.style.opacity = 0;
+						_div.style['letter-spacing'] = '0.2em';
+						_div.style['font-weight'] = '900';
+						_div.style.transition = 'opacity 500ms ease-in-out';
+						_div.style['text-shadow'] = `1px 1px 2px #fff, 0 0 25px ${this.fillColor}, 0 0 5px ${this.hoverColor}`;
+					} else {
+						_div.classList.add('blur');
+					}
 					var parent = map.parentNode;
 					parent.insertBefore(_div, map);
-					this.setStatePosition(_div);
+					this.setStatePosition({state: _div, data: null});
 					return document.getElementById('state');
 				}
 
-				setStateAsUS() {
+				setStateAsUS(data) {
 					var state = document.getElementById('state');
 					var name = state.getElementsByClassName('name')[0];
 					var abbreviation = state.getElementsByClassName('abbreviation')[0];
 					name.innerText = this._capitalize ? this.capitalize(this.states['USA']) : this.states['USA'];
 					abbreviation.innerText = this.states['USA_ABBR'];
-					this.setStatePosition();
+					this.setStatePosition({state: null, data: data});
 				}
 
-				setStatePosition(state) {
-					var map = document.getElementById('map');
+				setStatePosition({state, data}) {
 					var state = state || document.getElementById('state');
-					var width = (map.dataset.width ? parseInt(map.dataset.width) : null);
-					var height = (map.dataset.height ? parseInt(map.dataset.height) : null);
-					var statePos = this.getStatePosition(map, width, height);
+					var statePos = '';
+					if (this.stateLabel !== 'center' && data) {
+						statePos = this.getStatePosition(data.shape.node);
+					} else {
+						var map = document.getElementById('map');
+						var width = (map.dataset.width ? parseInt(map.dataset.width) : null);
+						var height = (map.dataset.height ? parseInt(map.dataset.height) : null);
+						statePos = this.getStatePosition(map, width, height);
+					}
 					state.style.top = statePos.y + 'px';
 					state.style.left = statePos.x + 'px';
 				}
@@ -237,7 +257,7 @@
 					$('#' + this.mapID).usmap({
 						stateStyles: {
 							fill: this.fillColor,
-							stroke: '#fff',
+							stroke: this.stroke,
 						},
 						stateHoverStyles: {
 							fill: this.hoverColor,
@@ -249,7 +269,7 @@
 							fill: this.hoverColor,
 						},
 						labelTextStyles: {
-							fill: this.textColor,
+							fill: this.labelColor,
 						},
 						mouseover: (event, data)=> {
 							div.onmouseover = (event)=> { 
@@ -261,7 +281,7 @@
 								if (this.stateLabel !== 'center') {
 									this.hideState(event);
 								} else {
-									this.setStateAsUS();
+									this.setStateAsUS(data);
 								}
 							};
 							$('.name').text(this._capitalize ? this.capitalize(this.states[data.name]) : this.states[data.name]).stop();
@@ -272,7 +292,7 @@
 							if (this.stateLabel !== 'center') {
 								this.hideState();
 							} else {
-								this.setStateAsUS();
+								this.setStateAsUS(data);
 							}
 						}
 					});

@@ -14,6 +14,7 @@
 	<script>
 		$(document).ready(function() {
 			class USMap {
+				// textColor='#0F52BA'
 				constructor(mapID='map', textColor='#000', fillColor='#5D8CAE', hoverColor='#22A7F0', backgroundColor='#ebf2ff', capitalize=false) {
 					this._capitalize = capitalize;
 					this.mapID = mapID;
@@ -151,7 +152,6 @@
 					_div.style['border-radius'] = '5px';
 					_div.style.transition = 'opacity 500ms ease-in-out';
 					_div.style.cursor = 'pointer';
-					_div.style.color = '#0F52BA';
 					_div.style['text-shadow'] = `1px 1px 2px #fff, 0 0 25px ${this.fillColor}, 0 0 5px ${this.hoverColor}`;
 				}
 
