@@ -65,7 +65,7 @@
 	<script>
 		$(document).ready(function() {
 			class USMap {
-				constructor(mapID='map', textColor='#000', labelColor='#000', stroke="#ddd", fillColor='#5D8CAE', hoverColor='#22A7F0', backgroundColor='#ebf2ff', capitalize=false, USA='UNITED STATES', USA_ABBR='US', stateLabel='blur') {
+				constructor(mapID='map', textColor='#fff', labelColor='#000', stroke="#ddd", fillColor='#5D8CAE', hoverColor='#22A7F0', backgroundColor='#ebf2ff', capitalize=false, USA='UNITED STATES', USA_ABBR='US', stateLabel='center') {
 					this._capitalize = capitalize;
 					this.mapID = mapID;
 					this.textColor = textColor;
@@ -170,12 +170,12 @@
 						return;
 					}
 
-					if (this.stateLabel !== 'center') {
+					if (this.stateLabel !== 'blur') {
 						div.style.transition = null;
 						div.style.opacity = 0;
 					}
 					window._stateTimeou = setTimeout(()=> {
-						if (this.stateLabel !== 'center') {
+						if (this.stateLabel !== 'blur') {
 							div.style.transition = 'opacity 500ms ease-in-out';
 							div.style.opacity = 1;
 						}
@@ -207,7 +207,7 @@
 					_div.style.cursor = 'pointer';
 					_div.style['font-family'] = '"Lucida Console", "Courier New", monospace';
 					_div.style.color = this.textColor;
-					if (this.stateLabel !== 'center') {
+					if (this.stateLabel !== 'blur') {
 						var abbreviation = _div.getElementsByClassName('abbreviation')[0];
 						abbreviation.style.display = 'none';
 						_div.style.display = 'none';
@@ -237,7 +237,7 @@
 				setStatePosition({state, data}) {
 					var state = state || document.getElementById('state');
 					var statePos = '';
-					if (this.stateLabel !== 'center' && data) {
+					if (this.stateLabel !== 'blur' && data) {
 						statePos = this.getStatePosition(data.shape.node);
 					} else {
 						var map = document.getElementById('map');
@@ -278,7 +278,7 @@
 							};
 							div.onmouseout = (event)=> {
 								$('#map').usmap('trigger', data.name, 'mouseout', event);
-								if (this.stateLabel !== 'center') {
+								if (this.stateLabel !== 'blur') {
 									this.hideState(event);
 								} else {
 									this.setStateAsUS(data);
@@ -289,7 +289,7 @@
 							this.showState(event, data);
 						},
 						mouseout: (event, data)=> {
-							if (this.stateLabel !== 'center') {
+							if (this.stateLabel !== 'blur') {
 								this.hideState();
 							} else {
 								this.setStateAsUS(data);
