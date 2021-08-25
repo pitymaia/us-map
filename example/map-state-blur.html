@@ -14,15 +14,15 @@
 			text-align: center;
 		}
 		.state.blur .name {
-			font-size: 1.5em;
+			font-size: 2.5em;
 			opacity:0;
 			overflow:hidden;
-			line-height: 1.2em;
+/*			line-height: 1.2em;*/
 			animation: rotate-name 8s linear infinite 0s;
 		}
 
 		.state.blur .abbreviation {
-			font-size: 1.5em;
+			font-size: 2.5em;
 			opacity:0;
 			overflow:hidden;
 			line-height: 1.2em;
@@ -31,7 +31,6 @@
 
 		.state.blur .name, .state.blur .abbreviation {
 			font-family: "Lucida Console", "Courier New", monospace;
-			letter-spacing: 0.2em;
 			font-weight: 900;
 		}
 
@@ -60,14 +59,17 @@
 </head>
 <body>
 
+	<div id="map2" data-width="930" data-height="630" style="width: 930px; height: 630px;"></div>
 	<div id="map" data-width="930" data-height="630" style="width: 930px; height: 630px;"></div>
 
 	<script>
 		$(document).ready(function() {
 			class USMap {
-				constructor(mapID='map', textColor='#fff', labelColor='#000', stroke="#ddd", fillColor='#5D8CAE', hoverColor='#22A7F0', backgroundColor='#ebf2ff', capitalize=false, USA='UNITED STATES', USA_ABBR='US', stateLabel='center') {
+				constructor({mapID='map', textColor='#fff', labelColor='#000', stroke="#ddd", fillColor='#5D8CAE', hoverColor='#22A7F0', backgroundColor='#ebf2ff', capitalize=false, USA='UNITED STATES', USA_ABBR='US', stateLabel='blur'}) {
 					this._capitalize = capitalize;
 					this.mapID = mapID;
+					this.map = document.getElementById(this.mapID);
+					this.stateId = this.mapID + '_state';
 					this.textColor = textColor;
 					this.fillColor = fillColor;
 					this.hoverColor = hoverColor;
@@ -151,7 +153,7 @@
 					var rect = path.getBoundingClientRect();
 					width = width || rect.width;
 					height = height || rect.height;
-					var div = document.getElementById('state');
+					var div = document.getElementById(this.stateId);
 					var x = rect.x + (width / 2);
 					var y = rect.y + (height / 2);
 
@@ -162,7 +164,7 @@
 				}
 
 				showState(event, data) {
-					var div = document.getElementById('state');
+					var div = document.getElementById(this.stateId);
 					div.style.display = 'inline-block';
 					this.setStatePosition({state: null, data: data});
 					clearTimeout(window._stateTimeou);
@@ -184,7 +186,7 @@
 				}
 
 				hideState(event) {
-					var div = document.getElementById('state');
+					var div = document.getElementById(this.stateId);
 					clearTimeout(window._stateTimeou);
 					window._stateTimeou = setTimeout(()=> {
 						div.style.opacity = 0;
@@ -200,8 +202,7 @@
 					_div.classList.add('state');
 					_div.innerHTML = `<div class="name">${this.states['USA']}</div>
 					<div class="abbreviation">${this.states['USA_ABBR']}</div>`;
-					var map = document.getElementById('map');
-					_div.id = 'state';
+					_div.id = this.stateId;
 					_div.style['z-index'] = 1000;
 					_div.style.position = 'absolute';
 					_div.style.cursor = 'pointer';
@@ -219,14 +220,14 @@
 					} else {
 						_div.classList.add('blur');
 					}
-					var parent = map.parentNode;
-					parent.insertBefore(_div, map);
+					var parent = this.map.parentNode;
+					parent.insertBefore(_div, this.map);
 					this.setStatePosition({state: _div, data: null});
-					return document.getElementById('state');
+					return document.getElementById(this.stateId);
 				}
 
 				setStateAsUS(data) {
-					var state = document.getElementById('state');
+					var state = document.getElementById(this.stateId);
 					var name = state.getElementsByClassName('name')[0];
 					var abbreviation = state.getElementsByClassName('abbreviation')[0];
 					name.innerText = this._capitalize ? this.capitalize(this.states['USA']) : this.states['USA'];
@@ -234,23 +235,30 @@
 					this.setStatePosition({state: null, data: data});
 				}
 
+				setStateLabels(data) {
+					var state = document.getElementById(this.stateId);
+					var name = state.getElementsByClassName('name')[0];
+					var abbreviation = state.getElementsByClassName('abbreviation')[0];
+					name.innerText = this._capitalize ? this.capitalize(this.states[data.name]) : this.states[data.name];
+					abbreviation.innerText = data.name;
+				}
+
 				setStatePosition({state, data}) {
-					var state = state || document.getElementById('state');
+					var state = state || document.getElementById(this.stateId);
 					var statePos = '';
 					if (this.stateLabel !== 'blur' && data) {
 						statePos = this.getStatePosition(data.shape.node);
 					} else {
-						var map = document.getElementById('map');
-						var width = (map.dataset.width ? parseInt(map.dataset.width) : null);
-						var height = (map.dataset.height ? parseInt(map.dataset.height) : null);
-						statePos = this.getStatePosition(map, width, height);
+						var width = (this.map.dataset.width ? parseInt(this.map.dataset.width) : null);
+						var height = (this.map.dataset.height ? parseInt(this.map.dataset.height) : null);
+						statePos = this.getStatePosition(this.map, width, height);
 					}
 					state.style.top = statePos.y + 'px';
 					state.style.left = statePos.x + 'px';
 				}
 
 				getMap() {
-					var div = document.getElementById('state');
+					var div = document.getElementById(this.stateId);
 					if (!div) {
 						div = this.addState(div);
 					}
@@ -274,18 +282,17 @@
 						mouseover: (event, data)=> {
 							div.onmouseover = (event)=> { 
 								clearTimeout(window._stateTimeou);
-								$('#map').usmap('trigger', data.name, 'mouseover', event);
+								$('#' + this.mapID).usmap('trigger', data.name, 'mouseover', event);
 							};
 							div.onmouseout = (event)=> {
-								$('#map').usmap('trigger', data.name, 'mouseout', event);
+								$('#' + this.mapID).usmap('trigger', data.name, 'mouseout', event);
 								if (this.stateLabel !== 'blur') {
 									this.hideState(event);
 								} else {
 									this.setStateAsUS(data);
 								}
 							};
-							$('.name').text(this._capitalize ? this.capitalize(this.states[data.name]) : this.states[data.name]).stop();
-							$('.abbreviation').text(data.name).stop();
+							this.setStateLabels(data);
 							this.showState(event, data);
 						},
 						mouseout: (event, data)=> {
@@ -299,9 +306,15 @@
 					$('#' + this.mapID).css('width' , '100%').css('height' , 'auto');
 				}
 			}
+			var options = {mapID:'map', textColor:'#fff', labelColor:'#000', stroke:"#ddd", fillColor:'#5D8CAE', hoverColor:'#22A7F0', backgroundColor:'#ebf2ff', capitalize:false, USA:'UNITED STATES', USA_ABBR:'US', stateLabel:'blur'};
 
-			var usMap = new USMap();
+			var usMap = new USMap(options);
 			usMap.getMap();
+
+			var options2 = {mapID:'map2', textColor:'#000', labelColor:'#000', stroke:"#fff", fillColor:'red', hoverColor:'orange', backgroundColor:'#ebf2ff', capitalize:false, USA:'UNITED STATES', USA_ABBR:'US', stateLabel:'center'};
+
+			var usMap2 = new USMap(options2);
+			usMap2.getMap();
 
 		});
 	</script>
