@@ -59,8 +59,8 @@
 </head>
 <body>
 
-	<div id="map2" data-width="930" data-height="630" style="width: 930px; height: 630px;"></div>
 	<div id="map" data-width="930" data-height="630" style="width: 930px; height: 630px;"></div>
+	<div id="map2" data-width="930" data-height="630" style="width: 930px; height: 630px;"></div>
 
 	<script>
 		$(document).ready(function() {
@@ -154,8 +154,8 @@
 					width = width || rect.width;
 					height = height || rect.height;
 					var div = document.getElementById(this.stateId);
-					var x = rect.x + (width / 2);
-					var y = rect.y + (height / 2);
+					var x = (rect.x  + window.scrollX) + (width / 2);
+					var y = (rect.y  + window.scrollY) + (height / 2);
 
 					x = x - (div.offsetWidth / 2);
 					y = y - (div.offsetHeight / 2);
