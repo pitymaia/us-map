@@ -434,7 +434,7 @@
           }
           this._scaleValue = this._scaleValue + 0.05;
           return_value.shape.node.style.transform = 'scale(' + this._scaleValue + ')';
-        }, 50);
+        }, 25);
         return_value.shape.node.style['transform-origin'] =  centreX + 'px ' + centreY + 'px';
         this._lastShape = return_value.shape;
       }

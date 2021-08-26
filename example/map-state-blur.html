@@ -8,22 +8,20 @@
 	<script src="color.jquery.js"></script>
 	<script src="../jquery.usmap.js"></script>
 	<style>
-
 		.state.blur {
 			padding-left: 4em;
 			text-align: center;
 		}
 		.state.blur .name {
 			font-size: 2.5em;
-			opacity:0;
+			opacity: 0;
 			overflow:hidden;
-/*			line-height: 1.2em;*/
 			animation: rotate-name 8s linear infinite 0s;
 		}
 
 		.state.blur .abbreviation {
 			font-size: 2.5em;
-			opacity:0;
+			opacity: 0;
 			overflow:hidden;
 			line-height: 1.2em;
 			animation: rotate-abbreviation 8s linear infinite 0s;
@@ -35,21 +33,21 @@
 		}
 
 		@keyframes rotate-name {
-			0% { opacity: 0;  transform: translateX(0);filter:blur(20px);transform:scale(0.8)}
-			7% { opacity: 1;  transform: translateX(0);filter:blur(0px);transform:scale(0.9)}
-			50% { opacity: 1;  transform: translateX(0);filter:blur(0px);transform:scale(1.1)}
-			80% { opacity: 1;  transform: translateX(0);filter:blur(0px);transform:scale(1.2)}
-			90% { opacity: 0; transform: translateX(0);filter:blur(20px);transform:scale(1.2)}
-			100% { opacity: 0}*/
+			0% { opacity: 0; transform: translateX(0); filter:blur(20px); transform:scale(0.8);}
+			7% { opacity: 1; transform: translateX(0); filter:blur(0px); transform:scale(0.9);}
+			50% { opacity: 1; transform: translateX(0); filter:blur(0px); transform:scale(1.1);}
+			80% { opacity: 1; transform: translateX(0); filter:blur(0px); transform:scale(1.2);}
+			90% { opacity: 0; transform: translateX(0); filter:blur(20px); transform:scale(1.2);}
+			100% { opacity: 0;}
 		}
 
 		@keyframes rotate-abbreviation {
-			80% { opacity: 0;  transform: translateX(0);filter:blur(20px);transform:scale(1.2)}
-			85% { opacity: 1;  transform: translateX(0);filter:blur(0px);transform:scale(1)}
-			95% { opacity: 1;  transform: translateX(0);filter:blur(0px);transform:scale(1.1)}
-			99% { opacity: 0; transform: translateX(0);filter:blur(20px);transform:scale(1.2)}
-			99% { opacity: 0; transform: translateX(0);filter:blur(20px);transform:scale(1.2)}
-			100% { opacity: 0}*/
+			80% { opacity: 0; transform: translateX(0); filter:blur(20px); transform:scale(1.2);}
+			85% { opacity: 1; transform: translateX(0); filter:blur(0px); transform:scale(1);}
+			95% { opacity: 1; transform: translateX(0); filter:blur(0px); transform:scale(1.1);}
+			99% { opacity: 0; transform: translateX(0); filter:blur(20px); transform:scale(1.2);}
+			99% { opacity: 0; transform: translateX(0); filter:blur(20px); transform:scale(1.2);}
+			100% { opacity: 0;}
 		}
 
 		.state.blur .abbreviation {
