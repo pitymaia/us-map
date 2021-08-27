@@ -403,7 +403,7 @@
       var labelText = stateName in this.labelTexts ? this.labelTexts[stateName] : null;
       var labelHitArea = stateName in this.labelHitAreas ? this.labelHitAreas[stateName] : null
       var bbox = this.bboxesForStateShapes[stateName];
-      
+
       var return_value = {
         shape: stateShape, 
         hitArea: stateHitArea, 
@@ -422,25 +422,46 @@
       }
 
       if (!this._lastShape || this._lastShape.node !== return_value.shape.node) {
-        var centreX = return_value.bbox.x + return_value.bbox.width/2;
-        var centreY = return_value.bbox.y + return_value.bbox.height/2;
-        return_value.shape.node.style.transform = 'scale(1.05)';
-        this._scaleValue = 1.05;
+        var centerX = return_value.bbox.x + return_value.bbox.width / 2;
+        var centerY = return_value.bbox.y + return_value.bbox.height / 2;
+        this._scaleValue = this.scaleValue(1.05);
+        if (this._scaleValue < 1) {
+          this._scaleValue = 1;
+        }
+
+        return_value.shape.node.style.transform =  `scale(${this._scaleValue})`;
+
+        var targetValue = this.scaleValue(1.3);
 
         this._setInterval = setInterval(()=> {
-          if (this._scaleValue >= 1.3) {
+          if (this._scaleValue >= targetValue) {
             clearInterval(this._setInterval);
             return;
           }
-          this._scaleValue = this._scaleValue + 0.05;
+          var targetIncrement = this.scaleValue(0.05);
+          this._scaleValue = this._scaleValue >= 1 ? this._scaleValue + targetIncrement : 1;
           return_value.shape.node.style.transform = 'scale(' + this._scaleValue + ')';
         }, 25);
-        return_value.shape.node.style['transform-origin'] =  centreX + 'px ' + centreY + 'px';
+
+        // if (this.scale < 1) {
+        //   centerX = centerX + 100;
+        //   centerY = centerY + 100;
+        // }
+        console.log('centerX', centerX, centerX + 100, this.scaleValueCenter(centerX));
+        return_value.shape.node.style['transform-origin'] = this.scaleValueCenter(centerX) + 'px ' + this.scaleValueCenter(centerY) + 'px';
         this._lastShape = return_value.shape;
       }
 
 
       return return_value;
+    },
+
+    scaleValueCenter(value) {
+      return value / this.scale;
+    },
+
+    scaleValue(value) {
+      return (value + (value * this.scale)) / 2;
     },
     
     _removeTransformations(node) {

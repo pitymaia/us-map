@@ -9,13 +9,12 @@
 	<script src="../jquery.usmap.js"></script>
 	<style>
 		.state.blur {
-			padding-left: 4em;
 			text-align: center;
 		}
 		.state.blur .name {
 			font-size: 2.5em;
 			opacity: 0;
-			overflow:hidden;
+			overflow: hidden;
 			animation: rotate-name 8s linear infinite 0s;
 		}
 
@@ -57,17 +56,19 @@
 </head>
 <body>
 
-	<div id="map" data-width="930" data-height="630" style="width: 930px; height: 630px;"></div>
-	<div id="map2" data-width="930" data-height="630" style="width: 930px; height: 630px;"></div>
+	<div id="map" data-width="630" data-height="430" style="border: solid 3px red;"></div>
+	<div id="map2" data-width="930" data-height="630" style="border: solid 3px red;"></div>
 
 	<script>
 		$(document).ready(function() {
 			class USMap {
 				constructor({mapID='map', textColor='#fff', labelColor='#000', stroke="#ddd", fillColor='#5D8CAE', hoverColor='#22A7F0', backgroundColor='#ebf2ff', capitalize=false, USA='UNITED STATES', USA_ABBR='US', stateLabel='blur'}) {
-					this._capitalize = capitalize;
 					this.mapID = mapID;
 					this.map = document.getElementById(this.mapID);
+					this.map.style.width = this.map.dataset.width + 'px';
+					this.map.style.height = this.map.dataset.height + 'px';
 					this.stateId = this.mapID + '_state';
+					this._capitalize = capitalize;
 					this.textColor = textColor;
 					this.fillColor = fillColor;
 					this.hoverColor = hoverColor;
@@ -309,7 +310,7 @@
 			var usMap = new USMap(options);
 			usMap.getMap();
 
-			var options2 = {mapID:'map2', textColor:'#000', labelColor:'#000', stroke:"#fff", fillColor:'red', hoverColor:'orange', backgroundColor:'#ebf2ff', capitalize:false, USA:'UNITED STATES', USA_ABBR:'US', stateLabel:'center'};
+			var options2 = {mapID:'map2', textColor:'#000', labelColor:'#000', stroke:"#ddd", fillColor:'#5D8CAE', hoverColor:'#22A7F0', backgroundColor:'#ebf2ff', capitalize:false, USA:'UNITED STATES', USA_ABBR:'US', stateLabel:'center'};
 
 			var usMap2 = new USMap(options2);
 			usMap2.getMap();
