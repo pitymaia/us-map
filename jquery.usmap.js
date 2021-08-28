@@ -431,7 +431,7 @@
 
         return_value.shape.node.style.transform =  `scale(${this._scaleValue})`;
 
-        var targetValue = this.scaleValue(1.3);
+        var targetValue = 1.3;
 
         this._setInterval = setInterval(()=> {
           if (this._scaleValue >= targetValue) {
@@ -441,13 +441,8 @@
           var targetIncrement = this.scaleValue(0.05);
           this._scaleValue = this._scaleValue >= 1 ? this._scaleValue + targetIncrement : 1;
           return_value.shape.node.style.transform = 'scale(' + this._scaleValue + ')';
-        }, 25);
+        }, 20);
 
-        // if (this.scale < 1) {
-        //   centerX = centerX + 100;
-        //   centerY = centerY + 100;
-        // }
-        console.log('centerX', centerX, centerX + 100, this.scaleValueCenter(centerX));
         return_value.shape.node.style['transform-origin'] = this.scaleValueCenter(centerX) + 'px ' + this.scaleValueCenter(centerY) + 'px';
         this._lastShape = return_value.shape;
       }
