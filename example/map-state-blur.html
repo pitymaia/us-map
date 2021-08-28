@@ -62,7 +62,7 @@
 	<script>
 		$(document).ready(function() {
 			class USMap {
-				constructor({mapID='map', textColor='#fff', labelColor='#000', stroke="#ddd", fillColor='#5D8CAE', hoverColor='#22A7F0', backgroundColor='#ebf2ff', capitalize=false, USA='UNITED STATES', USA_ABBR='US', stateLabel='blur'}) {
+				constructor({mapID='map', textColor='#fff', labelColor='#000', stroke="#ddd", fillColor='#5D8CAE', hoverColor='#22A7F0', backgroundColor='#ebf2ff', capitalize=false, USA='UNITED STATES', USA_ABBR='US', stateLabel='center', stateStyles=null, stateHoverStyles=null, labelBackingStyles=null, labelBackingHoverStyles=null, labelTextStyles=null}) {
 					this.mapID = mapID;
 					this.map = document.getElementById(this.mapID);
 					this.map.style.width = this.map.dataset.width + 'px';
@@ -75,6 +75,15 @@
 					this.backgroundColor = backgroundColor;
 					this.stateLabel = stateLabel;
 					this.stroke = stroke;
+
+					this.options = {
+						stateStyles: stateStyles ? stateStyles : {fill: this.fillColor, stroke: this.stroke},
+						stateHoverStyles: stateHoverStyles ? stateHoverStyles : {fill: this.hoverColor},
+						labelBackingStyles: labelBackingStyles ? labelBackingStyles : {fill: this.backgroundColor},
+						labelBackingHoverStyles: labelBackingHoverStyles ? labelBackingHoverStyles : {fill: this.hoverColor},
+						labelTextStyles: labelTextStyles ? labelTextStyles : {fill: this.labelColor},
+					};
+
 					this.states = {
 						USA_ABBR: USA_ABBR,
 						USA: USA,
@@ -256,52 +265,40 @@
 					state.style.left = statePos.x + 'px';
 				}
 
-				getMap() {
+				getMap(onClick) {
 					var div = document.getElementById(this.stateId);
 					if (!div) {
 						div = this.addState(div);
 					}
-					$('#' + this.mapID).usmap({
-						stateStyles: {
-							fill: this.fillColor,
-							stroke: this.stroke,
-						},
-						stateHoverStyles: {
-							fill: this.hoverColor,
-						},
-						labelBackingStyles: {
-							fill: this.backgroundColor,
-						},
-						labelBackingHoverStyles: {
-							fill: this.hoverColor,
-						},
-						labelTextStyles: {
-							fill: this.labelColor,
-						},
-						mouseover: (event, data)=> {
-							div.onmouseover = (event)=> { 
-								clearTimeout(window._stateTimeou);
-								$('#' + this.mapID).usmap('trigger', data.name, 'mouseover', event);
-							};
-							div.onmouseout = (event)=> {
-								$('#' + this.mapID).usmap('trigger', data.name, 'mouseout', event);
-								if (this.stateLabel !== 'blur') {
-									this.hideState(event);
-								} else {
-									this.setStateAsUS(data);
-								}
-							};
-							this.setStateLabels(data);
-							this.showState(event, data);
-						},
-						mouseout: (event, data)=> {
+					this.options.mouseover = (event, data)=> {
+						div.onmouseover = (event)=> { 
+							clearTimeout(window._stateTimeou);
+							$('#' + this.mapID).usmap('trigger', data.name, 'mouseover', event);
+						};
+						div.onmouseout = (event)=> {
+							$('#' + this.mapID).usmap('trigger', data.name, 'mouseout', event);
 							if (this.stateLabel !== 'blur') {
-								this.hideState();
+								this.hideState(event);
 							} else {
 								this.setStateAsUS(data);
 							}
+						};
+						this.setStateLabels(data);
+						this.showState(event, data);
+					};
+					this.options.mouseout = (event, data)=> {
+						if (this.stateLabel !== 'blur') {
+							this.hideState();
+						} else {
+							this.setStateAsUS(data);
 						}
-					});
+					};
+					this.options.click = (event, data)=> {
+						if (onClick) {
+							onClick(event, data);
+						}
+					};
+					$('#' + this.mapID).usmap(this.options);
 					$('#' + this.mapID).css('width' , '100%').css('height' , 'auto');
 				}
 			}
@@ -312,10 +309,41 @@
 
 			var options2 = {mapID:'map2', textColor:'#000', labelColor:'#000', stroke:"#ddd", fillColor:'#5D8CAE', hoverColor:'#22A7F0', backgroundColor:'#ebf2ff', capitalize:false, USA:'UNITED STATES', USA_ABBR:'US', stateLabel:'center'};
 
-			var usMap2 = new USMap(options2);
-			usMap2.getMap();
-
+			new USMap(options2).getMap((event, data)=> {
+				go('" + bracketX.Key + "', data.name);
+			});
 		});
 	</script>
+
+<!-- 	s += "<script>$(document).ready(function() {new USMap({mapID: '" + mapID + "', stateStyles: { fill: '" + fillColor + "', stroke: '#ccc' }, stateHoverStyles: { fill: '" + hoverColor + "' }, labelBackingStyles: { fill: '#ebf2ff' }, labelBackingHoverStyles: { fill: '" + hoverColor + "' }, labelTextStyles: { fill: '#000' }, capitalize: false, stateLabel:'center'}).getMap((event, data)=> { go('" + bracketX.Key + "', data.name); });});</script>"; -->
+
+<!-- 	<script>
+		$(document).ready(
+			function() {
+				new USMap({
+					mapID: 'mapID',
+					stateStyles: {
+						fill: 'fillColor',
+						stroke: '#ccc'
+					},
+					stateHoverStyles: {
+						fill: 'hoverColor'
+					},
+					labelBackingStyles: {
+						fill: '#ebf2ff'
+					},
+					labelBackingHoverStyles: {
+						fill: 'hoverColor'
+					},
+					labelTextStyles: {
+						fill: '#000'
+					},
+					capitalize: false,
+					stateLabel:'center'
+				}).getMap(
+					(event, data)=> { go('bracketX.Key', data.name);
+				});
+			});
+	</script> -->
 </body>
 </html>
